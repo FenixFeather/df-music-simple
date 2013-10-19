@@ -1,0 +1,10 @@
+*~
+.*
+!.gitignore
+watch-1.0.py
+watch-1.1.py
+music/**/*.mp3
+music/**/*.ogg
+music/**/*.wav
+!music/effects/*
+
