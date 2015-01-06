@@ -149,7 +149,7 @@ if __name__ == "__main__":
 
     last_lines = game_log.get_lines()
     if last_lines:
-        match = player.analyze([-1])
+        match = player.analyze(last_lines[-1])
         if match:
             player.queue_music(match[0], match[1])
         
