@@ -81,7 +81,7 @@ class gameLog():
         self.diff = 0
         
     def changed(self):
-        change_handle = win32file.FindFirstChangeNotification (os.dirname(self.path), False, win32con.FILE_NOTIFY_CHANGE_SIZE)
+        change_handle = win32file.FindFirstChangeNotification (os.path.dirname(self.path), False, win32con.FILE_NOTIFY_CHANGE_SIZE)
         result = win32event.WaitForSingleObject (change_handle, 500)   #Returns an object after a file size change
         if result == win32con.WAIT_OBJECT_0:
             if os.path.getsize(self.path) > self.size:   #If it's the actual gamelog that changed
