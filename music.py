@@ -19,7 +19,7 @@ class Player():
         self.season = season  #path to season folder music
         
     def analyze(self, line):
-        music_bindings = self.parse_music_bindings("music.txt")# example format of dictionary: {r'Spring has arrived!|Spring has arrived on the calendar':(info.season,0)}
+        music_bindings = self.parse_music_bindings("music.cfg")# example format of dictionary: {r'Spring has arrived!|Spring has arrived on the calendar':(info.season,0)}
         for regex in music_bindings.keys():
             if re.search(regex,line):
                 print("Match found: {0}".format(line))
