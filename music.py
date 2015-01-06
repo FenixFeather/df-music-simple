@@ -90,8 +90,9 @@ class GameLog():
                 self.size = os.path.getsize(self.path)
                 win32file.FindCloseChangeNotification (change_handle)
                 return True
-            else:
-                win32file.FindNextChangeNotification (change_handle)   #I'm not actually sure if this code is doing what I'm trying to do
+        return False
+            # else:
+            #     win32file.FindNextChangeNotification (change_handle)   #I'm not actually sure if this code is doing what I'm trying to do
         
     def get_lines(self):
         log = open(self.path,'r')
@@ -99,6 +100,9 @@ class GameLog():
         last_lines = log.readlines()
         log.close()
         return(last_lines)
+
+    def get_size(self):
+        return os.path.getsize(self.path)
         
 class Loader():
     def __init__(self, path):
@@ -110,13 +114,15 @@ class Loader():
         except IOError:
             self.save_season(player)
             f = open(self.path,'r')
-        player.season = f.readline()
+        saved_string = f.readline()
+        player.season = saved_string.split("|")[0]
         print("Loaded " + player.season)
         f.close()
+        return int(saved_string.split("|")[1])
         
-    def save_season(self, player):
+    def save_season(self, player, size=0):
         f = open(self.path,'w')
-        f.write(player.season)
+        f.write(player.season + "|" + str(size))
         print("Saved {0} to {1}.".format(player.season, self.path))
         f.close()
         
@@ -127,13 +133,26 @@ if __name__ == "__main__":
     pygame.display.set_mode((200,100))
     player = Player()
     game_log = GameLog("../../../Dwarf Fortress 0.40.23/gamelog.txt")
+
+    old_size = 0
     
     for parameter in ('-l', '--load'):
         if parameter in sys.argv:
             loader = Loader(sys.argv[sys.argv.index(parameter) + 1])
-            loader.load_season(player)
+            old_size = loader.load_season(player)
             break
-    
+        else:
+            print("No file specified for loading. Usage: music.py -l filetoload")
+            exit()
+
+    game_log.diff = old_size - game_log.get_size()
+
+    last_lines = game_log.get_lines()
+    if last_lines:
+        match = player.analyze([-1])
+        if match:
+            player.queue_music(match[0], match[1])
+        
     while True:
         try:
             if game_log.changed():   #Will return true when a change is made to the gamelog
@@ -151,6 +170,6 @@ if __name__ == "__main__":
             while want.lower() not in ('y','n'):
                 want = raw_input("Do you want to save the season? (y/n): ")
                 if want.lower() == 'y':
-                    loader.save_season(player)
+                    loader.save_season(player, game_log.get_size())
             break
         
