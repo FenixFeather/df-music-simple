@@ -108,7 +108,7 @@ class loader():
         try:
             f = open(self.path,'r')
         except IOError:
-            self.saveSeason(player)
+            self.save_season(player)
             f = open(self.path,'r')
         player.season = f.readline()
         print("Loaded " + player.season)
