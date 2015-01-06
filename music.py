@@ -100,7 +100,7 @@ class GameLog():
         log.close()
         return(last_lines)
         
-class loader():
+class Loader():
     def __init__(self, path):
         self.path = path
     
@@ -130,7 +130,7 @@ if __name__ == "__main__":
     
     for parameter in ('-l', '--load'):
         if parameter in sys.argv:
-            loader = loader(sys.argv[sys.argv.index(parameter) + 1])
+            loader = Loader(sys.argv[sys.argv.index(parameter) + 1])
             loader.load_season(player)
             break
     
