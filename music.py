@@ -2,6 +2,7 @@
 #A program for monitoring the Dwarf Fortress gamelog.txt and playing music/sound effects.
 #By Thomas Liu
 
+
 import re
 import pygame
 import os
@@ -18,14 +19,14 @@ class player():
         self.season = season  #path to season folder music
         
     def analyze(self, line):
-        musicBindings = self.parseMusicBindings("music.txt")# example format of dictionary: {r'Spring has arrived!|Spring has arrived on the calendar':(info.season,0)}
-        for regex in musicBindings.keys():
+        music_bindings = self.parse_music_bindings("music.txt")# example format of dictionary: {r'Spring has arrived!|Spring has arrived on the calendar':(info.season,0)}
+        for regex in music_bindings.keys():
             if re.search(regex,line):
                 print("Match found: {0}".format(line))
-                return musicBindings[regex]
+                return music_bindings[regex]
         return None
         
-    def queueMusic(self, name, priority):    #Determines whether to play music, or just play the sound effect, or just change the season 
+    def queue_music(self, name, priority):    #Determines whether to play music, or just play the sound effect, or just change the season 
         if priority == -1: #sound effect
             weather = pygame.mixer.Channel(0)
             rain = pygame.mixer.Sound(name)
@@ -36,42 +37,42 @@ class player():
         elif priority == 0: #assume season change
             self.season = name
             if self.priority <= 1: #if there's no important music playing
-                self.playMusic(self.season)
+                self.play_music(self.season)
                 self.priority = 0
         elif priority == 1: #Menu music
             self.priority = priority
-            self.playMusic(name, -1)
+            self.play_music(name, -1)
         elif priority >= self.priority: #Differing levels of priority of action music that overrides all other music
             self.priority = priority
-            self.playMusic(name)
+            self.play_music(name)
                 
-    def playMusic(self, fileOrFolder, loops=0):    #Plays actual music file, or randomly selects a music from the folder
-        if re.search(r'.ogg|.mp3|.wav',fileOrFolder): #If it's a specific file
+    def play_music(self, file_or_folder, loops=0):    #Plays actual music file, or randomly selects a music from the folder
+        if re.search(r'.ogg|.mp3|.wav',file_or_folder): #If it's a specific file
             try:
-                pygame.mixer.music.load(fileOrFolder)  #then just load it
+                pygame.mixer.music.load(file_or_folder)  #then just load it
                 pygame.mixer.music.play(loops)
-                print('Playing {0}'.format(fileOrFolder))
+                print('Playing {0}'.format(file_or_folder))
             except pygame.error:
-                self.playMusic(self.season)
+                self.play_music(self.season)
         else:
             try:
-                files = os.listdir(fileOrFolder)
+                files = os.listdir(file_or_folder)
                 music = random.choice(files)
-                pygame.mixer.music.load(fileOrFolder+'/'+music)
+                pygame.mixer.music.load(file_or_folder+'/'+music)
                 pygame.mixer.music.play(loops)
                 print('Playing {0}'.format(music))
             except OSError:
-                self.playMusic(self.season)   #fall back to season music, which ideally does exist.
+                self.play_music(self.season)   #fall back to season music, which ideally does exist.
             
-    def parseMusicBindings(self,path="music.cfg"):
-        musicFile = open(path,'r')
+    def parse_music_bindings(self,path="music.cfg"):
+        music_file = open(path,'r')
         output = dict()
-        for line in musicFile:
-            lineSplit = line.split(';',2)
-            regex = lineSplit[0]
-            musicPath = lineSplit[1]
-            priority = int(lineSplit[2])
-            output[regex] = (musicPath, priority)
+        for line in music_file:
+            line_split = line.split(';',2)
+            regex = line_split[0]
+            music_path = line_split[1]
+            priority = int(line_split[2])
+            output[regex] = (music_path, priority)
         return output #returns a dictionary with keys of type string and values of tuples of a string and an int
     
 class gameLog():
@@ -92,18 +93,18 @@ class gameLog():
             else:
                 win32file.FindNextChangeNotification (change_handle)   #I'm not actually sure if this code is doing what I'm trying to do
         
-    def getLines(self):
+    def get_lines(self):
         log = open(self.path,'r')
         log.seek(self.diff,2)   #Goes to the |self.diff|th byte before the end of the file
-        lastLines = log.readlines()
+        last_lines = log.readlines()
         log.close()
-        return(lastLines)
+        return(last_lines)
         
 class loader():
     def __init__(self, path):
         self.path = path
     
-    def loadSeason(self, player):
+    def load_season(self, player):
         try:
             f = open(self.path,'r')
         except IOError:
@@ -113,7 +114,7 @@ class loader():
         print("Loaded " + player.season)
         f.close()
         
-    def saveSeason(self, player):
+    def save_season(self, player):
         f = open(self.path,'w')
         f.write(player.season)
         print("Saved {0} to {1}.".format(player.season, self.path))
@@ -125,24 +126,24 @@ if __name__ == "__main__":
     pygame.mixer.music.set_endevent(1)
     pygame.display.set_mode((200,100))
     player = player()
-    gameLog = gameLog("gamelog.txt")
+    game_log = game_log("gamelog.txt")
     
     for parameter in ('-l', '--load'):
         if parameter in sys.argv:
             loader = loader(sys.argv[sys.argv.index(parameter) + 1])
-            loader.loadSeason(player)
+            loader.load_season(player)
             break
     
     while True:
         try:
-            if gameLog.changed():   #Will return true when a change is made to the gamelog
-                # print(gameLog.getLines())
-                for line in gameLog.getLines():
+            if game_log.changed():   #Will return true when a change is made to the gamelog
+                # print(game_log.get_lines())
+                for line in game_log.get_lines():
                     match = player.analyze(line)
                     if match:
-                        player.queueMusic(match[0],match[1])
+                        player.queue_music(match[0],match[1])
                 if not pygame.mixer.music.get_busy():
-                    player.playMusic(player.season)
+                    player.play_music(player.season)
             
         except KeyboardInterrupt:
             print("Quitting.")
@@ -150,6 +151,6 @@ if __name__ == "__main__":
             while want.lower() not in ('y','n'):
                 want = raw_input("Do you want to save the season? (y/n): ")
                 if want.lower() == 'y':
-                    loader.saveSeason(player)
+                    loader.save_season(player)
             break
         
