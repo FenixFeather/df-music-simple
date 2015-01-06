@@ -13,7 +13,7 @@ import win32event
 import win32con
 import time
 
-class player():
+class Player():
     def __init__(self, season="music/explore"):
         self.priority = 0
         self.season = season  #path to season folder music
@@ -75,7 +75,7 @@ class player():
             output[regex] = (music_path, priority)
         return output #returns a dictionary with keys of type string and values of tuples of a string and an int
     
-class gameLog():
+class GameLog():
     def __init__(self, path = "gamelog.txt"):
         self.size = os.path.getsize(path)
         self.path = path
@@ -125,8 +125,8 @@ if __name__ == "__main__":
     pygame.mixer.init()
     pygame.mixer.music.set_endevent(1)
     pygame.display.set_mode((200,100))
-    player = player()
-    game_log = game_log("gamelog.txt")
+    player = Player()
+    game_log = GameLog("../../../Dwarf Fortress 0.40.23/gamelog.txt")
     
     for parameter in ('-l', '--load'):
         if parameter in sys.argv:
