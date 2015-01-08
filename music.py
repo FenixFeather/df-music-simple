@@ -155,6 +155,7 @@ if __name__ == "__main__":
         
     while True:
         try:
+            pygame.event.get()
             if game_log.changed():   #Will return true when a change is made to the gamelog
                 # print(game_log.get_lines())
                 for line in game_log.get_lines():
