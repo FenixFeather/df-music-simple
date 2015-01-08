@@ -26,7 +26,8 @@ class Player():
                 return music_bindings[regex]
         return None
         
-    def queue_music(self, name, priority):    #Determines whether to play music, or just play the sound effect, or just change the season 
+    def queue_music(self, name, priority):
+        """ Determine whether to play music, or just play the sound effect, or just change the season. """
         if priority == -1: #sound effect
             weather = pygame.mixer.Channel(0)
             rain = pygame.mixer.Sound(name)
@@ -46,10 +47,11 @@ class Player():
             self.priority = priority
             self.play_music(name)
                 
-    def play_music(self, file_or_folder, loops=0):    #Plays actual music file, or randomly selects a music from the folder
+    def play_music(self, file_or_folder, loops=0):
+        """Play actual music file, or randomly select a music from the folder."""
         if re.search(r'.ogg|.mp3|.wav',file_or_folder): #If it's a specific file
             try:
-                pygame.mixer.music.load(file_or_folder)  #then just load it
+                pygame.mixer.music.load(file_or_folder)
                 pygame.mixer.music.play(loops)
                 print('Playing {0}'.format(file_or_folder))
             except pygame.error:
@@ -65,6 +67,7 @@ class Player():
                 self.play_music(self.season)   #fall back to season music, which ideally does exist.
             
     def parse_music_bindings(self,path="music.cfg"):
+        """Return a dictionary with keys of type string and values of tuples of a string and an int."""
         music_file = open(path,'r')
         output = dict()
         for line in music_file:
@@ -73,7 +76,7 @@ class Player():
             music_path = line_split[1]
             priority = int(line_split[2])
             output[regex] = (music_path, priority)
-        return output #returns a dictionary with keys of type string and values of tuples of a string and an int
+        return output 
     
 class GameLog():
     def __init__(self, path = "gamelog.txt"):
@@ -156,7 +159,7 @@ if __name__ == "__main__":
     while True:
         try:
             pygame.event.get()
-            if game_log.changed():   #Will return true when a change is made to the gamelog
+            if game_log.changed():   
                 # print(game_log.get_lines())
                 for line in game_log.get_lines():
                     match = player.analyze(line)
